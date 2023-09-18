@@ -139,13 +139,29 @@ int main(void)
             if (msg.message == WM_QUIT)
             {
                 break;
-            }            
+            }
             TranslateMessage(&msg);
             DispatchMessage(&msg);
 
+            texture->LockRect(0, &lockedRect, NULL, 0);
+
+            static int i = 0;
+            i += 1;
+            unsigned int *textureData = (unsigned int *)lockedRect.pBits;
+            for (unsigned int x = 0; x < tWidth; ++x)
+            {
+                for (unsigned int y = 0; y < tHeight; ++y)
+                {
+                    unsigned char r = (x+i) ^ y;
+                    textureData[x + y * tWidth] = 0xff000000 | (r << 16);
+                }
+            }
+            texture->UnlockRect(0);
+            device->SetTexture(0, texture);
+
             device->Clear(0, 0,
                           D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER,
-                          0x00000077, 1.0f, 0);
+                          0x00000000, 1.0f, 0);
 
             device->BeginScene();
             device->SetStreamSource(0, vertexBuffer, 0, sizeof(Vertex));

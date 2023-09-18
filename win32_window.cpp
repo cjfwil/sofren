@@ -3,13 +3,10 @@
 
 #include <windows.h>
 
-static void OnResize(void);
-
 LRESULT CALLBACK StaticWindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
     switch (uMsg)
     {
-
     case WM_DESTROY:
         PostQuitMessage(0);
         break;
