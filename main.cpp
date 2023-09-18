@@ -17,8 +17,8 @@ int main(void)
     {
         RECT rect = {};
         GetClientRect(hwnd, &rect);
-        int width = rect.right - rect.left;
-        int height = rect.bottom - rect.top;
+        int clientWidth = rect.right - rect.left;
+        int clientHeight = rect.bottom - rect.top;
 
         IDirect3D9 *d3d = Direct3DCreate9(D3D_SDK_VERSION);
         IDirect3DDevice9 *device = NULL;
@@ -33,8 +33,8 @@ int main(void)
             vertexproc = D3DCREATE_SOFTWARE_VERTEXPROCESSING;
 
         D3DPRESENT_PARAMETERS d3dpp = {};
-        d3dpp.BackBufferWidth = width;
-        d3dpp.BackBufferHeight = height;
+        d3dpp.BackBufferWidth = clientWidth;
+        d3dpp.BackBufferHeight = clientHeight;
         d3dpp.BackBufferFormat = D3DFMT_A8R8G8B8;
         d3dpp.BackBufferCount = 1;
         d3dpp.MultiSampleType = D3DMULTISAMPLE_NONE;
@@ -55,18 +55,14 @@ int main(void)
         }
         d3d->Release();
 
-        // float vertices[] = {
-        //     0.0f, 0.5f, 0.0f, 1.0f,
-        //     0.5f, -0.5f, 0.0f, 1.0f,
-        //     -0.5f, -0.5f, 0.0f, 1.0f};
         struct Vertex
         {
             float x, y, z;
+            float u, v;
         };
         Vertex *vertices;
-        // float vertices[9] = {};
 
-        const DWORD VertexFVF = D3DFVF_XYZ;
+        const DWORD VertexFVF = D3DFVF_XYZ | D3DFVF_TEX1;
         IDirect3DVertexBuffer9 *vertexBuffer;
         if (FAILED(device->CreateVertexBuffer(4 * sizeof(Vertex), D3DUSAGE_WRITEONLY, VertexFVF, D3DPOOL_MANAGED, &vertexBuffer, NULL)))
         {
@@ -74,27 +70,56 @@ int main(void)
             return (1);
         }
         vertexBuffer->Lock(0, 0, (void **)&vertices, 0);
-        // memcpy(vertices, vertices, sizeof(vertices));
-        vertices[0].x = -0.5f;
-        vertices[0].y = 0.5f;
+        vertices[0].x = -1.0f;
+        vertices[0].y = 1.0f;
         vertices[0].z = 0.0f;
+        vertices[0].u = 0.0f;
+        vertices[0].v = 0.0f;
 
-        vertices[1].x = 0.5f;
-        vertices[1].y = 0.5f;
+        vertices[1].x = 1.0f;
+        vertices[1].y = 1.0f;
         vertices[1].z = 0.0f;
+        vertices[1].u = 1.0f;
+        vertices[1].v = 0.0f;
 
-        vertices[2].x = -0.5f;
-        vertices[2].y = -0.5f;
+        vertices[2].x = -1.0f;
+        vertices[2].y = -1.0f;
         vertices[2].z = 0.0f;
+        vertices[2].u = 0.0f;
+        vertices[2].v = 1.0f;
 
-        vertices[3].x = 0.5f;
-        vertices[3].y = -0.5f;
+        vertices[3].x = 1.0f;
+        vertices[3].y = -1.0f;
         vertices[3].z = 0.0f;
-
+        vertices[3].u = 1.0f;
+        vertices[3].v = 1.0f;
         vertexBuffer->Unlock();
+
+        int tWidth = 320;
+        int tHeight = 240;
+        IDirect3DTexture9 *texture;
+        hr = device->CreateTexture(tWidth, tHeight, 1, 0, D3DFMT_A8R8G8B8, D3DPOOL_MANAGED, &texture, NULL);
+        if (FAILED(hr)) {
+            MessageBoxA(NULL, "Could not Create d3d9 texture.", "Error", MB_ICONERROR);
+            return (1);
+        }
+        D3DLOCKED_RECT lockedRect;
+        texture->LockRect(0, &lockedRect, NULL, 0);        
+
+        unsigned int* textureData = (unsigned int*)lockedRect.pBits;
+        for (unsigned int x = 0; x < tWidth; ++x) {
+            for (unsigned int y = 0; y < tHeight; ++y) {              
+                unsigned char r = x ^ y;  
+                textureData[x + y*tWidth] = 0xff000000 | (r << 16);
+            }
+        }
+        texture->UnlockRect(0);
+        device->SetTexture(0, texture);
+
 
         device->SetRenderState(D3DRS_FILLMODE, D3DFILL_SOLID);
         device->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE);
+        device->SetRenderState(D3DRS_LIGHTING, false);
 
         ShowWindow(hwnd, SW_SHOWDEFAULT);
 
