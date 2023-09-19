@@ -5,10 +5,10 @@
 
 #include <windows.h>
 
-#include "win32_window.cpp"
-#include "sofren_d3d9.cpp"
+#include "../win32_window.cpp"
+#include "../sofren_d3d9.cpp"
 
-#include "raycast.cpp"
+#include "../demos/raycast.cpp"
 
 int main(void)
 {
