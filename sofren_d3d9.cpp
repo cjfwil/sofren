@@ -21,7 +21,7 @@ struct sofren_d3d9
     bool success = false;
 };
 
-struct Vertex
+struct sofren_vertex
 {
     float x, y, z;
     float u, v;
@@ -62,7 +62,7 @@ static void D3D9SofRenBlit(sofren_d3d9 sr)
                      0x00000000, 1.0f, 0);
 
     sr.device->BeginScene();
-    sr.device->SetStreamSource(0, sr.screenVertexBuffer, 0, sizeof(Vertex));
+    sr.device->SetStreamSource(0, sr.screenVertexBuffer, 0, sizeof(sofren_vertex));
     sr.device->SetFVF(sr.screenVertexFVF);
     sr.device->DrawPrimitive(D3DPT_TRIANGLESTRIP, 0, 2);
     sr.device->EndScene();
@@ -113,14 +113,14 @@ static sofren_d3d9 D3D9SofRenInit(HWND hwnd, int internalBufferWidth=SOFREN_DEFA
     {
         d3d->Release();
 
-        Vertex *vertices;
+        sofren_vertex *vertices;
 
         if (sr.screenVertexBuffer != NULL)
         {
             sr.screenVertexBuffer->Release();
         }
 
-        if (!FAILED(sr.device->CreateVertexBuffer(4 * sizeof(Vertex), D3DUSAGE_WRITEONLY, sr.screenVertexFVF, D3DPOOL_MANAGED, &sr.screenVertexBuffer, NULL)))
+        if (!FAILED(sr.device->CreateVertexBuffer(4 * sizeof(sofren_vertex), D3DUSAGE_WRITEONLY, sr.screenVertexFVF, D3DPOOL_MANAGED, &sr.screenVertexBuffer, NULL)))
         {
             float xMult = 1.0f;
             float yMult = 1.0f;
