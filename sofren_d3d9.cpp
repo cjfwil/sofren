@@ -122,29 +122,34 @@ static sofren_d3d9 D3D9SofRenInit(HWND hwnd, int internalBufferWidth=SOFREN_DEFA
 
         if (!FAILED(sr.device->CreateVertexBuffer(4 * sizeof(Vertex), D3DUSAGE_WRITEONLY, sr.screenVertexFVF, D3DPOOL_MANAGED, &sr.screenVertexBuffer, NULL)))
         {
-
-            float xMult = ((float)clientHeight / (float)clientWidth) * (sr.internalBufferWidth / (float)sr.internalBufferHeight);
+            float xMult = 1.0f;
+            float yMult = 1.0f;
+            if (clientHeight <= clientWidth) {
+                xMult = ((float)clientHeight / (float)clientWidth) * (sr.internalBufferWidth / (float)sr.internalBufferHeight);
+            } else {
+                yMult = ((float)clientWidth / (float)clientHeight) * (sr.internalBufferHeight / (float)sr.internalBufferWidth);
+            }
             hr = sr.screenVertexBuffer->Lock(0, 0, (void **)&vertices, 0);
             vertices[0].x = -1.0f * xMult;
-            vertices[0].y = 1.0f;
+            vertices[0].y = 1.0f * yMult;
             vertices[0].z = 0.0f;
             vertices[0].u = 0.0f;
             vertices[0].v = 0.0f;
 
             vertices[1].x = 1.0f * xMult;
-            vertices[1].y = 1.0f;
+            vertices[1].y = 1.0f * yMult;
             vertices[1].z = 0.0f;
             vertices[1].u = 1.0f;
             vertices[1].v = 0.0f;
 
             vertices[2].x = -1.0f * xMult;
-            vertices[2].y = -1.0f;
+            vertices[2].y = -1.0f * yMult;
             vertices[2].z = 0.0f;
             vertices[2].u = 0.0f;
             vertices[2].v = 1.0f;
 
             vertices[3].x = 1.0f * xMult;
-            vertices[3].y = -1.0f;
+            vertices[3].y = -1.0f * yMult;
             vertices[3].z = 0.0f;
             vertices[3].u = 1.0f;
             vertices[3].v = 1.0f;
