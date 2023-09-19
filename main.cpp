@@ -14,10 +14,11 @@
 int main(void)
 {
     HRESULT hr = NULL;
-    HWND hwnd = Win32CreateWindow();
+    HWND hwnd = Win32CreateWindow("D3D9 Software Renderer Library Demo (USE ARROW KEYS TO MOVE)");
     if (hwnd)
     {
-        if (InitD3D9SoftwareRenderer(hwnd))
+        sofren_d3d9 sr = D3D9SofRenInit(hwnd, 320, 240);
+        if (sr.success)
         {
             ShowWindow(hwnd, SW_SHOWDEFAULT);
 
@@ -59,33 +60,15 @@ int main(void)
 
                 LodeVRaycastMove(up, down, left, right);
 
-                texture->LockRect(0, &lockedRect, NULL, 0);
+                sofren_screen_buffer screenBuffer = D3D9SofRenBegin(sr, 0x00111111);
 
-                unsigned int *textureData = (unsigned int *)lockedRect.pBits;
-                for (unsigned int i = 0; i < tWidth * tHeight; ++i)
-                {
-                    textureData[i] = 0x00111111;
-                }
+                LodeVRaycastDemo(screenBuffer.width, screenBuffer.height, screenBuffer.data);
 
-                LodeVRaycast(tWidth, tHeight, textureData, worldMap);
+                D3D9SofRenEnd(sr);
 
-                texture->UnlockRect(0);
-                device->SetTexture(0, texture);
-
-                device->Clear(0, 0,
-                              D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER,
-                              0x00000000, 1.0f, 0);
-
-                device->BeginScene();
-                device->SetStreamSource(0, vertexBuffer, 0, sizeof(Vertex));
-                device->SetFVF(VertexFVF);
-                device->DrawPrimitive(D3DPT_TRIANGLESTRIP, 0, 2);
-                device->EndScene();
-
-                hr = device->Present(0, 0, 0, 0);
+                D3D9SofRenBlit(sr);
             }
-            vertexBuffer->Release();
-            device->Release();
+            D3D9SofRenRelease(sr);
         }
     }
     return (0);

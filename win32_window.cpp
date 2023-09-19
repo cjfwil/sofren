@@ -14,7 +14,7 @@ LRESULT CALLBACK StaticWindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lP
     return DefWindowProc(hWnd, uMsg, wParam, lParam);
 }
 
-static HWND Win32CreateWindow()
+static HWND Win32CreateWindow(char* windowName)
 {
     HINSTANCE hInstance = (HINSTANCE)GetModuleHandleA(NULL);
     HMENU hMenu = NULL;
@@ -38,7 +38,7 @@ static HWND Win32CreateWindow()
     {        
         HWND hwnd = CreateWindowA(
             windowClass.lpszClassName,
-            "Window Name",
+            windowName,
             WS_OVERLAPPEDWINDOW,
             CW_USEDEFAULT,
             CW_USEDEFAULT,

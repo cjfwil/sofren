@@ -2,39 +2,51 @@
 #define RAYCAST_CPP
 
 #include <math.h>
+#include <malloc.h>
 
-int worldMap[24][24] =
+int worldMap[64][64] =
     {
-        {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
-        {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-        {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-        {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-        {1, 0, 0, 0, 0, 0, 2, 2, 2, 2, 2, 0, 0, 0, 0, 3, 0, 3, 0, 3, 0, 0, 0, 1},
-        {1, 0, 0, 0, 0, 0, 2, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-        {1, 0, 0, 0, 0, 0, 2, 0, 0, 0, 2, 0, 0, 0, 0, 3, 0, 0, 0, 3, 0, 0, 0, 1},
-        {1, 0, 0, 0, 0, 0, 2, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-        {1, 0, 0, 0, 0, 0, 2, 2, 0, 2, 2, 0, 0, 0, 0, 3, 0, 3, 0, 3, 0, 0, 0, 1},
-        {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-        {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-        {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-        {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-        {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-        {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-        {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-        {1, 4, 4, 4, 4, 4, 4, 4, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-        {1, 4, 0, 4, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-        {1, 4, 0, 0, 0, 0, 5, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-        {1, 4, 0, 4, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-        {1, 4, 0, 4, 4, 4, 4, 4, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-        {1, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-        {1, 4, 4, 4, 4, 4, 4, 4, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-        {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}};
+        {4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 7, 7, 7, 7, 7, 7, 7, 7},
+        {4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 7},
+        {4, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7},
+        {4, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7},
+        {4, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 7},
+        {4, 0, 4, 0, 0, 0, 0, 5, 5, 5, 5, 5, 5, 5, 5, 5, 7, 7, 0, 7, 7, 7, 7, 7},
+        {4, 0, 5, 0, 0, 0, 0, 5, 0, 5, 0, 5, 0, 5, 0, 5, 7, 0, 0, 0, 7, 7, 7, 1},
+        {4, 0, 6, 0, 0, 0, 0, 5, 0, 0, 0, 0, 0, 0, 0, 5, 7, 0, 0, 0, 0, 0, 0, 8},
+        {4, 0, 7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7, 7, 7, 1},
+        {4, 0, 8, 0, 0, 0, 0, 5, 0, 0, 0, 0, 0, 0, 0, 5, 7, 0, 0, 0, 0, 0, 0, 8},
+        {4, 0, 0, 0, 0, 0, 0, 5, 0, 0, 0, 0, 0, 0, 0, 5, 7, 0, 0, 0, 7, 7, 7, 1},
+        {4, 0, 0, 0, 0, 0, 0, 5, 5, 5, 5, 0, 5, 5, 5, 5, 7, 7, 7, 7, 7, 7, 7, 1},
+        {6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 0, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6},
+        {8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4},
+        {6, 6, 6, 6, 6, 6, 0, 6, 6, 6, 6, 0, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6},
+        {4, 4, 4, 4, 4, 4, 0, 4, 4, 4, 6, 0, 6, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3},
+        {4, 0, 0, 0, 0, 0, 0, 0, 0, 4, 6, 0, 6, 2, 0, 0, 0, 0, 0, 2, 0, 0, 0, 2},
+        {4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6, 2, 0, 0, 5, 0, 0, 2, 0, 0, 0, 2},
+        {4, 0, 0, 0, 0, 0, 0, 0, 0, 4, 6, 0, 6, 2, 0, 0, 0, 0, 0, 2, 2, 0, 2, 2},
+        {4, 0, 6, 0, 6, 0, 0, 0, 0, 4, 6, 0, 0, 0, 0, 0, 5, 0, 0, 0, 0, 0, 0, 2},
+        {4, 0, 0, 5, 0, 0, 0, 0, 0, 4, 6, 0, 6, 2, 0, 0, 0, 0, 0, 2, 2, 0, 2, 2},
+        {4, 0, 6, 0, 6, 0, 0, 0, 0, 4, 6, 0, 6, 2, 0, 0, 5, 0, 0, 2, 0, 0, 0, 2},
+        {4, 0, 0, 0, 0, 0, 0, 0, 0, 4, 6, 0, 6, 2, 0, 0, 0, 0, 0, 2, 0, 0, 0, 2},
+        {4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 1, 1, 1, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3}};
 
-double posX = 22, posY = 12;        // x and y start position
+double posX = 22.5, posY = 11.5;    // x and y start position
 double dirX = -1, dirY = 0;         // initial direction vector
 double planeX = 0, planeY = 0.66;   // the 2d raycaster version of camera plane
 double moveSpeed = 0.016667f * 5.0; // the constant value is in squares/second
 double rotSpeed = 0.016667f * 3.0;  // the constant value is in radians/second
+int texWidth = 64, texHeight = 64;
+
+struct LodeVDemo_texture
+{
+    unsigned int width = texWidth;
+    unsigned int height = texHeight;
+    unsigned int *data;
+};
+
+LodeVDemo_texture rcTextures[8];
+bool rcTexturesLoaded = false;
 
 static void LodeVRaycastMove(bool up, bool down, bool left, bool right)
 {
@@ -74,8 +86,37 @@ static void LodeVRaycastMove(bool up, bool down, bool left, bool right)
     }
 }
 
-static void LodeVRaycast(int screenWidth, int screenHeight, unsigned int *screenData, int worldMap[24][24])
+static void LodeVRaycastSetup()
 {
+    for (int i = 0; i < 8; ++i)
+    {
+        rcTextures[i].data = (unsigned int *)malloc(rcTextures[i].width * rcTextures[i].height * sizeof(unsigned int));
+    }
+    // generate some textures
+    for (int x = 0; x < texWidth; x++)
+    {
+        for (int y = 0; y < texHeight; y++)
+        {
+            int xorcolor = (x * 256 / texWidth) ^ (y * 256 / texHeight);
+            // int xcolor = x * 256 / texWidth;
+            int ycolor = y * 256 / texHeight;
+            int xycolor = y * 128 / texHeight + x * 128 / texWidth;
+            rcTextures[0].data[texWidth * y + x] = 65536 * 254 * (x != y && x != texWidth - y);  // flat red texture with black cross
+            rcTextures[1].data[texWidth * y + x] = xycolor + 256 * xycolor + 65536 * xycolor;    // sloped greyscale
+            rcTextures[2].data[texWidth * y + x] = 256 * xycolor + 65536 * xycolor;              // sloped yellow gradient
+            rcTextures[3].data[texWidth * y + x] = xorcolor + 256 * xorcolor + 65536 * xorcolor; // xor greyscale
+            rcTextures[4].data[texWidth * y + x] = 256 * xorcolor;                               // xor green
+            rcTextures[5].data[texWidth * y + x] = 65536 * 192 * (x % 16 && y % 16);             // red bricks
+            rcTextures[6].data[texWidth * y + x] = 65536 * ycolor;                               // red gradient
+            rcTextures[7].data[texWidth * y + x] = 128 + 256 * 128 + 65536 * 128;                // flat grey texture
+        }
+    }
+    rcTexturesLoaded = true;
+}
+
+static void LodeVRaycastDemo(int screenWidth, int screenHeight, unsigned int *screenData)
+{
+    if (!rcTexturesLoaded) LodeVRaycastSetup();
     for (int x = 0; x < screenWidth; x++)
     {
         // calculate ray position and direction
@@ -162,6 +203,24 @@ static void LodeVRaycast(int screenWidth, int screenHeight, unsigned int *screen
         if (drawEnd >= screenHeight)
             drawEnd = screenHeight - 1;
 
+        // texturing calculations
+        int texNum = worldMap[mapX][mapY] - 1; // 1 subtracted from it so that texture 0 can be used!
+
+        // calculate value of wallX
+        double wallX; // where exactly the wall was hit
+        if (side == 0)
+            wallX = posY + perpWallDist * rayDirY;
+        else
+            wallX = posX + perpWallDist * rayDirX;
+        wallX -= floor((wallX));
+
+        // x coordinate on the texture
+        int texX = int(wallX * double(texWidth));
+        if (side == 0 && rayDirX > 0)
+            texX = texWidth - texX - 1;
+        if (side == 1 && rayDirY < 0)
+            texX = texWidth - texX - 1;
+
         // choose wall color
         unsigned int color;
         switch (worldMap[mapX][mapY])
@@ -193,12 +252,27 @@ static void LodeVRaycast(int screenWidth, int screenHeight, unsigned int *screen
             color = r << 16 | g << 8 | b;
         }
 
-        // draw the pixels of the stripe as a vertical line
-        for (int y = 0; y < drawEnd - drawStart; ++y)
+        // How much to increase the texture coordinate per screen pixel
+        double step = 1.0 * texHeight / lineHeight;
+        // Starting texture coordinate
+        double texPos = (drawStart - screenHeight / 2 + lineHeight / 2) * step;
+        for (int y = drawStart; y < drawEnd; y++)
         {
-            int newY = y + (screenHeight - (drawEnd - drawStart)) / 2;
-            screenData[x + newY * screenWidth] = color;
+            // Cast the texture coordinate to integer, and mask with (texHeight - 1) in case of overflow
+            int texY = (int)texPos & (texHeight - 1);
+            texPos += step;
+            color = rcTextures[texNum].data[texHeight * texY + texX];
+            // make color darker for y-sides: R, G and B byte each divided through two with a "shift" and an "and"
+            if (side == 1)
+                color = (color >> 1) & 8355711;
+            screenData[x + y * screenWidth] = color;
         }
+
+        // // draw the pixels of the stripe as a vertical line
+        // for (int y = drawStart; y < drawEnd; ++y)
+        // {
+        //     screenData[x + y * screenWidth] = color;
+        // }
         // end of lodeV raycast implementation
     }
 }
