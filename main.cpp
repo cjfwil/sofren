@@ -3,8 +3,7 @@
 #pragma comment(lib, "shell32.lib")
 #pragma comment(lib, "d3d9.lib")
 
-#include <stdio.h>
-#include <math.h>
+#include <windows.h>
 
 #include "win32_window.cpp"
 #include "sofren_d3d9.cpp"
@@ -14,7 +13,7 @@
 int main(void)
 {
     HRESULT hr = NULL;
-    HWND hwnd = Win32CreateWindow("D3D9 Software Renderer Library Demo (USE ARROW KEYS TO MOVE)");
+    HWND hwnd = Win32CreateWindow("D3D9 Software Renderer API Demo (USE ARROW KEYS TO MOVE)");
     if (hwnd)
     {
         sofren_d3d9 sr = D3D9SofRenInit(hwnd, 320, 240);
@@ -34,6 +33,8 @@ int main(void)
                 {
                     break;
                 }
+                
+                //input code
                 if (msg.message == WM_KEYDOWN || msg.message == WM_KEYUP)
                 {
                     switch (msg.wParam)
@@ -55,6 +56,7 @@ int main(void)
                         break;
                     }
                 }
+
                 TranslateMessage(&msg);
                 DispatchMessage(&msg);
 
@@ -65,7 +67,6 @@ int main(void)
                 LodeVRaycastDemo(screenBuffer.width, screenBuffer.height, screenBuffer.data);
 
                 D3D9SofRenEnd(sr);
-
                 D3D9SofRenBlit(sr);
             }
             D3D9SofRenRelease(sr);
