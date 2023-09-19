@@ -30,70 +30,62 @@ int worldMap[24][24] =
         {1, 4, 4, 4, 4, 4, 4, 4, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
         {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}};
 
-struct demo_state
-{
-    double posX = 22, posY = 12;        // x and y start position
-    double dirX = -1, dirY = 0;         // initial direction vector
-    double planeX = 0, planeY = 0.66;   // the 2d raycaster version of camera plane
-    double moveSpeed = 0.016667f * 5.0; // the constant value is in squares/second
-    double rotSpeed = 0.016667f * 3.0;  // the constant value is in radians/second
-};
-
-static demo_state demoState;
+double posX = 22, posY = 12;        // x and y start position
+double dirX = -1, dirY = 0;         // initial direction vector
+double planeX = 0, planeY = 0.66;   // the 2d raycaster version of camera plane
+double moveSpeed = 0.016667f * 5.0; // the constant value is in squares/second
+double rotSpeed = 0.016667f * 3.0;  // the constant value is in radians/second
 
 static void LodeVRaycastMove(bool up, bool down, bool left, bool right)
 {
-    demo_state result = demoState;
     if (up)
     {
-        if (worldMap[int(result.posX + result.dirX * result.moveSpeed)][int(result.posY)] == false)
-            result.posX += result.dirX * result.moveSpeed;
-        if (worldMap[int(result.posX)][int(result.posY + result.dirY * result.moveSpeed)] == false)
-            result.posY += result.dirY * result.moveSpeed;
+        if (worldMap[int(posX + dirX * moveSpeed)][int(posY)] == false)
+            posX += dirX * moveSpeed;
+        if (worldMap[int(posX)][int(posY + dirY * moveSpeed)] == false)
+            posY += dirY * moveSpeed;
     }
     if (down)
     {
-        if (worldMap[int(result.posX - result.dirX * result.moveSpeed)][int(result.posY)] == false)
-            result.posX -= result.dirX * result.moveSpeed;
-        if (worldMap[int(result.posX)][int(result.posY - result.dirY * result.moveSpeed)] == false)
-            result.posY -= result.dirY * result.moveSpeed;
+        if (worldMap[int(posX - dirX * moveSpeed)][int(posY)] == false)
+            posX -= dirX * moveSpeed;
+        if (worldMap[int(posX)][int(posY - dirY * moveSpeed)] == false)
+            posY -= dirY * moveSpeed;
     }
     if (right)
     {
         // both camera direction and camera plane must be rotated
-        double oldDirX = result.dirX;
-        result.dirX = result.dirX * cos(-result.rotSpeed) - result.dirY * sin(-result.rotSpeed);
-        result.dirY = oldDirX * sin(-result.rotSpeed) + result.dirY * cos(-result.rotSpeed);
-        double oldPlaneX = result.planeX;
-        result.planeX = result.planeX * cos(-result.rotSpeed) - result.planeY * sin(-result.rotSpeed);
-        result.planeY = oldPlaneX * sin(-result.rotSpeed) + result.planeY * cos(-result.rotSpeed);
+        double oldDirX = dirX;
+        dirX = dirX * cos(-rotSpeed) - dirY * sin(-rotSpeed);
+        dirY = oldDirX * sin(-rotSpeed) + dirY * cos(-rotSpeed);
+        double oldPlaneX = planeX;
+        planeX = planeX * cos(-rotSpeed) - planeY * sin(-rotSpeed);
+        planeY = oldPlaneX * sin(-rotSpeed) + planeY * cos(-rotSpeed);
     }
     if (left)
     {
         // both camera direction and camera plane must be rotated
-        double oldDirX = result.dirX;
-        result.dirX = result.dirX * cos(result.rotSpeed) - result.dirY * sin(result.rotSpeed);
-        result.dirY = oldDirX * sin(result.rotSpeed) + result.dirY * cos(result.rotSpeed);
-        double oldPlaneX = result.planeX;
-        result.planeX = result.planeX * cos(result.rotSpeed) - result.planeY * sin(result.rotSpeed);
-        result.planeY = oldPlaneX * sin(result.rotSpeed) + result.planeY * cos(result.rotSpeed);
+        double oldDirX = dirX;
+        dirX = dirX * cos(rotSpeed) - dirY * sin(rotSpeed);
+        dirY = oldDirX * sin(rotSpeed) + dirY * cos(rotSpeed);
+        double oldPlaneX = planeX;
+        planeX = planeX * cos(rotSpeed) - planeY * sin(rotSpeed);
+        planeY = oldPlaneX * sin(rotSpeed) + planeY * cos(rotSpeed);
     }
-    demoState = result;
 }
 
 static void LodeVRaycast(int screenWidth, int screenHeight, unsigned int *screenData, int worldMap[24][24])
 {
-    demo_state state = demoState;
     for (int x = 0; x < screenWidth; x++)
     {
         // calculate ray position and direction
         double cameraX = 2 * x / double(screenWidth) - 1; // x-coordinate in camera space
-        double rayDirX = state.dirX + state.planeX * cameraX;
-        double rayDirY = state.dirY + state.planeY * cameraX;
+        double rayDirX = dirX + planeX * cameraX;
+        double rayDirY = dirY + planeY * cameraX;
 
         // which box of the map we're in
-        int mapX = int(state.posX);
-        int mapY = int(state.posY);
+        int mapX = int(posX);
+        int mapY = int(posY);
 
         // length of ray from current position to next x or y-side
         double sideDistX;
@@ -115,22 +107,22 @@ static void LodeVRaycast(int screenWidth, int screenHeight, unsigned int *screen
         if (rayDirX < 0)
         {
             stepX = -1;
-            sideDistX = (state.posX - mapX) * deltaDistX;
+            sideDistX = (posX - mapX) * deltaDistX;
         }
         else
         {
             stepX = 1;
-            sideDistX = (mapX + 1.0 - state.posX) * deltaDistX;
+            sideDistX = (mapX + 1.0 - posX) * deltaDistX;
         }
         if (rayDirY < 0)
         {
             stepY = -1;
-            sideDistY = (state.posY - mapY) * deltaDistY;
+            sideDistY = (posY - mapY) * deltaDistY;
         }
         else
         {
             stepY = 1;
-            sideDistY = (mapY + 1.0 - state.posY) * deltaDistY;
+            sideDistY = (mapY + 1.0 - posY) * deltaDistY;
         }
 
         // perform DDA

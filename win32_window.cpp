@@ -35,8 +35,7 @@ static HWND Win32CreateWindow()
     windowClass.lpszClassName = "WindowClassName";
 
     if (RegisterClassA(&windowClass))
-    {
-        // CreateWindow
+    {        
         HWND hwnd = CreateWindowA(
             windowClass.lpszClassName,
             "Window Name",
