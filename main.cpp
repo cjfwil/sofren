@@ -173,6 +173,8 @@ int main(void)
             TranslateMessage(&msg);
             DispatchMessage(&msg);
 
+            LodeVRaycastMove(up, down, left, right);
+
             texture->LockRect(0, &lockedRect, NULL, 0);
 
             unsigned int *textureData = (unsigned int *)lockedRect.pBits;
@@ -180,77 +182,9 @@ int main(void)
             {
                 textureData[i] = 0x00111111;
             }
-            // lodeV raycast implementation
-            int worldMap[24][24] =
-                {
-                    {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
-                    {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-                    {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-                    {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-                    {1, 0, 0, 0, 0, 0, 2, 2, 2, 2, 2, 0, 0, 0, 0, 3, 0, 3, 0, 3, 0, 0, 0, 1},
-                    {1, 0, 0, 0, 0, 0, 2, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-                    {1, 0, 0, 0, 0, 0, 2, 0, 0, 0, 2, 0, 0, 0, 0, 3, 0, 0, 0, 3, 0, 0, 0, 1},
-                    {1, 0, 0, 0, 0, 0, 2, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-                    {1, 0, 0, 0, 0, 0, 2, 2, 0, 2, 2, 0, 0, 0, 0, 3, 0, 3, 0, 3, 0, 0, 0, 1},
-                    {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-                    {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-                    {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-                    {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-                    {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-                    {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-                    {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-                    {1, 4, 4, 4, 4, 4, 4, 4, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-                    {1, 4, 0, 4, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-                    {1, 4, 0, 0, 0, 0, 5, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-                    {1, 4, 0, 4, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-                    {1, 4, 0, 4, 4, 4, 4, 4, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-                    {1, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-                    {1, 4, 4, 4, 4, 4, 4, 4, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-                    {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}};
+                  
+            LodeVRaycast(tWidth, tHeight, textureData, worldMap);
 
-            static double posX = 22, posY = 12;      // x and y start position
-            static double dirX = -1, dirY = 0;       // initial direction vector
-            static double planeX = 0, planeY = 0.66; // the 2d raycaster version of camera plane
-            double moveSpeed = 0.016667f * 5.0;     // the constant value is in squares/second
-            double rotSpeed = 0.016667f * 3.0;      // the constant value is in radians/second
-
-            if (up)
-            {
-                if (worldMap[int(posX + dirX * moveSpeed)][int(posY)] == false)
-                    posX += dirX * moveSpeed;
-                if (worldMap[int(posX)][int(posY + dirY * moveSpeed)] == false)
-                    posY += dirY * moveSpeed;
-            }
-            if (down)
-            {
-                if (worldMap[int(posX - dirX * moveSpeed)][int(posY)] == false)
-                    posX -= dirX * moveSpeed;
-                if (worldMap[int(posX)][int(posY - dirY * moveSpeed)] == false)
-                    posY -= dirY * moveSpeed;
-            }
-            if (right)
-            {                   
-                // both camera direction and camera plane must be rotated
-                double oldDirX = dirX;
-                dirX = dirX * cos(-rotSpeed) - dirY * sin(-rotSpeed);
-                dirY = oldDirX * sin(-rotSpeed) + dirY * cos(-rotSpeed);
-                double oldPlaneX = planeX;
-                planeX = planeX * cos(-rotSpeed) - planeY * sin(-rotSpeed);
-                planeY = oldPlaneX * sin(-rotSpeed) + planeY * cos(-rotSpeed);
-            }
-            if (left)
-            {
-                // both camera direction and camera plane must be rotated
-                double oldDirX = dirX;
-                dirX = dirX * cos(rotSpeed) - dirY * sin(rotSpeed);
-                dirY = oldDirX * sin(rotSpeed) + dirY * cos(rotSpeed);
-                double oldPlaneX = planeX;
-                planeX = planeX * cos(rotSpeed) - planeY * sin(rotSpeed);
-                planeY = oldPlaneX * sin(rotSpeed) + planeY * cos(rotSpeed);
-            }
-
-            //raycast
-            LodeVRaycast(tWidth, tHeight, textureData, posX, posY, dirX, dirY, planeX, planeY, worldMap);
             texture->UnlockRect(0);
             device->SetTexture(0, texture);
 
